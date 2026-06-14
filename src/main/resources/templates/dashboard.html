@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Hanuman Temple</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/temple.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg temple-navbar fixed-top">
+    <div class="container-fluid px-3">
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/}">
+            <span class="temple-logo">🚩</span>
+            <div>
+                <div class="brand-title">Hanuman Temple</div>
+                <div class="brand-subtitle">Puja Reminder System</div>
+            </div>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+            <i class="bi bi-list text-white fs-4"></i>
+        </button>
+    </div>
+</nav>
+
+<!-- Offcanvas Sidebar (mobile) -->
+<div class="offcanvas offcanvas-start temple-sidebar-offcanvas" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title text-white">🚩 Navigation</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <div th:replace="~{fragments/sidebar :: sidebar-nav}"></div>
+    </div>
+</div>
+
+<div class="page-wrapper">
+    <!-- Desktop Sidebar -->
+    <aside class="sidebar d-none d-lg-flex flex-column">
+        <div th:replace="~{fragments/sidebar :: sidebar-nav}"></div>
+    </aside>
+
+    <main class="main-content">
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mx-3 mt-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="container-fluid">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div>
+                        <h1 class="page-title"><i class="bi bi-speedometer2 me-2 text-warning"></i>Dashboard</h1>
+                        <p class="page-subtitle mb-0">Welcome to Hanuman Temple Puja Reminder System</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/couples/add}" class="btn btn-warning"><i class="bi bi-person-plus-fill me-1"></i>Add Couple</a>
+                        <a th:href="@{/reminders}" class="btn btn-success"><i class="bi bi-whatsapp me-1"></i>Send Reminders</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card stat-card-saffron">
+                        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                        <div class="stat-value" th:text="${dashboard.totalCouples}">0</div>
+                        <div class="stat-label">Total Couples</div>
+                        <div class="stat-footer"><a th:href="@{/couples}">View all <i class="bi bi-arrow-right"></i></a></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card stat-card-green">
+                        <div class="stat-icon"><i class="bi bi-calendar-check-fill"></i></div>
+                        <div class="stat-value" th:text="${dashboard.totalOccupiedWeeks}">0</div>
+                        <div class="stat-label">Occupied Weeks</div>
+                        <div class="stat-footer"><span class="text-white-50">Out of 52 weeks</span></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card stat-card-blue">
+                        <div class="stat-icon"><i class="bi bi-calendar-plus-fill"></i></div>
+                        <div class="stat-value" th:text="${dashboard.totalAvailableWeeks}">52</div>
+                        <div class="stat-label">Available Weeks</div>
+                        <div class="stat-footer"><a th:href="@{/couples/add}">Assign couple <i class="bi bi-arrow-right"></i></a></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card stat-card-purple">
+                        <div class="stat-icon"><i class="bi bi-file-text-fill"></i></div>
+                        <div class="stat-value" th:text="${dashboard.totalTemplates}">0</div>
+                        <div class="stat-label">Message Templates</div>
+                        <div class="stat-footer"><a th:href="@{/templates}">Manage <i class="bi bi-arrow-right"></i></a></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Tuesday + Quick Actions -->
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="temple-card">
+                        <div class="temple-card-header d-flex align-items-center gap-2">
+                            <i class="bi bi-calendar-event-fill text-warning fs-4"></i>
+                            <div>
+                                <h5 class="mb-0">Upcoming Tuesday Puja</h5>
+                                <small class="text-white-50">Week <span th:text="${dashboard.upcomingWeekNumber}">-</span></small>
+                            </div>
+                            <div class="ms-auto">
+                                <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                                    📅 <span th:text="${formattedDate}">--</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="temple-card-body">
+                            <div th:if="${dashboard.upcomingCouples != null and !dashboard.upcomingCouples.isEmpty()}">
+                                <div th:each="couple : ${dashboard.upcomingCouples}" class="couple-card mb-3">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="couple-avatar"><i class="bi bi-people-fill"></i></div>
+                                            <div>
+                                                <div class="couple-names">
+                                                    <strong th:text="${couple.husbandName}"></strong>
+                                                    <span class="text-muted mx-1">&amp;</span>
+                                                    <strong th:text="${couple.wifeName}"></strong>
+                                                </div>
+                                                <div class="text-muted small">
+                                                    <i class="bi bi-phone-fill me-1"></i>
+                                                    <span th:text="${couple.mobileNumber}"></span>
+                                                    <span class="ms-2 badge bg-light text-dark">Week <span th:text="${couple.weekNumber}"></span></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <a th:href="@{/reminders/preview/{id}(id=${couple.id})}" class="btn btn-whatsapp btn-sm">
+                                            <i class="bi bi-whatsapp me-1"></i>Send Reminder
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:if="${dashboard.upcomingCouples == null or dashboard.upcomingCouples.isEmpty()}" class="empty-state py-4 text-center">
+                                <i class="bi bi-calendar-x text-warning fs-1"></i>
+                                <p class="mt-2 mb-1">No couples assigned for Week <strong th:text="${dashboard.upcomingWeekNumber}"></strong></p>
+                                <a th:href="@{/couples/add}" class="btn btn-sm btn-warning mt-2"><i class="bi bi-plus-circle me-1"></i>Assign Couple</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="temple-card h-100">
+                        <div class="temple-card-header">
+                            <h5 class="mb-0"><i class="bi bi-lightning-fill text-warning me-2"></i>Quick Actions</h5>
+                        </div>
+                        <div class="temple-card-body">
+                            <div class="quick-actions">
+                                <a th:href="@{/couples/add}" class="quick-action-card">
+                                    <div class="qa-icon bg-warning bg-opacity-10"><i class="bi bi-person-plus-fill text-warning fs-3"></i></div>
+                                    <div><div class="fw-semibold">Add New Couple</div><small class="text-muted">Register a couple for puja</small></div>
+                                    <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                                </a>
+                                <a th:href="@{/reminders}" class="quick-action-card">
+                                    <div class="qa-icon bg-success bg-opacity-10"><i class="bi bi-whatsapp text-success fs-3"></i></div>
+                                    <div><div class="fw-semibold">Send Reminders</div><small class="text-muted">WhatsApp upcoming couples</small></div>
+                                    <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                                </a>
+                                <a th:href="@{/couples}" class="quick-action-card">
+                                    <div class="qa-icon bg-primary bg-opacity-10"><i class="bi bi-people text-primary fs-3"></i></div>
+                                    <div><div class="fw-semibold">View All Couples</div><small class="text-muted">Manage couple registry</small></div>
+                                    <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                                </a>
+                                <a th:href="@{/templates}" class="quick-action-card">
+                                    <div class="qa-icon" style="background:rgba(188,140,255,0.1)"><i class="bi bi-file-text" style="color:#bc8cff;font-size:1.75rem"></i></div>
+                                    <div><div class="fw-semibold">Manage Templates</div><small class="text-muted">Edit message templates</small></div>
+                                    <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="temple-card">
+                        <div class="temple-card-header">
+                            <h5 class="mb-0"><i class="bi bi-bar-chart-fill text-warning me-2"></i>Schedule Overview</h5>
+                        </div>
+                        <div class="temple-card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Weeks Assigned</span>
+                                <span class="fw-semibold"><span th:text="${dashboard.totalOccupiedWeeks}">0</span> / 52</span>
+                            </div>
+                            <div class="progress temple-progress" style="height:12px;">
+                                <div class="progress-bar bg-warning" role="progressbar"
+                                     th:style="'width:' + ${(dashboard.totalOccupiedWeeks / 52.0) * 100} + '%'"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-1">
+                                <small class="text-muted">Total capacity: 104 couples (2 per week)</small>
+                                <small class="text-muted"><span th:text="${dashboard.totalAvailableWeeks}">52</span> weeks available</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/temple.js}"></script>
+</body>
+</html>

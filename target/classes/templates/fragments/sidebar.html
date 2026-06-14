@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="sidebar-nav" class="sidebar-nav">
+    <div class="sidebar-header">
+        <div class="temple-icon">🕌</div>
+        <div class="temple-name">Hanuman Temple</div>
+        <div class="temple-tagline">Puja Reminder System</div>
+    </div>
+    <ul class="nav flex-column sidebar-menu">
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/}" th:classappend="${activePage == 'dashboard'} ? ' active' : ''">
+                <i class="bi bi-speedometer2"></i><span>Dashboard</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/couples}" th:classappend="${activePage == 'couples'} ? ' active' : ''">
+                <i class="bi bi-people-fill"></i><span>Manage Couples</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/reminders}" th:classappend="${activePage == 'reminders'} ? ' active' : ''">
+                <i class="bi bi-whatsapp"></i><span>Send Reminders</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/templates}" th:classappend="${activePage == 'templates'} ? ' active' : ''">
+                <i class="bi bi-file-text-fill"></i><span>Message Templates</span>
+            </a>
+        </li>
+    </ul>
+    <div class="sidebar-footer">
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-warning">🙏</span>
+            <small class="text-white-50">Jai Bajrang Bali</small>
+        </div>
+    </div>
+</nav>
+</body>
+</html>

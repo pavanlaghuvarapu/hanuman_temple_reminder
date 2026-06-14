@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} + ' | Hanuman Temple'">Couple Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/temple.css}" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg temple-navbar fixed-top">
+    <div class="container-fluid px-3">
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/}">
+            <span class="temple-logo">🚩</span>
+            <div><div class="brand-title">Hanuman Temple</div><div class="brand-subtitle">Puja Reminder System</div></div>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+            <i class="bi bi-list text-white fs-4"></i>
+        </button>
+    </div>
+</nav>
+<div class="offcanvas offcanvas-start temple-sidebar-offcanvas" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header"><h5 class="offcanvas-title text-white">🚩 Navigation</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div>
+    <div class="offcanvas-body p-0"><div th:replace="~{fragments/sidebar :: sidebar-nav}"></div></div>
+</div>
+<div class="page-wrapper">
+    <aside class="sidebar d-none d-lg-flex flex-column"><div th:replace="~{fragments/sidebar :: sidebar-nav}"></div></aside>
+    <main class="main-content">
+
+        <div class="page-header">
+            <div class="container-fluid">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div>
+                        <h1 class="page-title">
+                            <i class="bi bi-person-plus-fill me-2 text-warning" th:if="${formAction == 'add'}"></i>
+                            <i class="bi bi-pencil-fill me-2 text-warning" th:if="${formAction == 'edit'}"></i>
+                            <span th:text="${pageTitle}"></span>
+                        </h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a th:href="@{/}" class="text-warning">Home</a></li>
+                                <li class="breadcrumb-item"><a th:href="@{/couples}" class="text-warning">Couples</a></li>
+                                <li class="breadcrumb-item active text-muted" th:text="${pageTitle}"></li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <a th:href="@{/couples}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <div class="row justify-content-center">
+                <div class="col-lg-7 col-xl-6">
+                    <div class="temple-card">
+                        <div class="temple-card-header">
+                            <h5 class="mb-0"><i class="bi bi-people-fill text-warning me-2"></i>
+                                <span th:text="${formAction == 'add'} ? 'Register New Couple' : 'Update Couple Details'"></span>
+                            </h5>
+                        </div>
+                        <div class="temple-card-body">
+                            <div th:if="${errorMessage}" class="alert alert-danger d-flex align-items-center gap-2 mb-4">
+                                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                                <span th:text="${errorMessage}"></span>
+                            </div>
+                            <form th:action="${formAction == 'add'} ? @{/couples/add} : @{/couples/edit/{id}(id=${couple.id})}"
+                                  th:object="${couple}" method="post" novalidate>
+
+                                <!-- Husband Name -->
+                                <div class="mb-4">
+                                    <label for="husbandName" class="form-label">
+                                        <i class="bi bi-person-fill text-warning me-1"></i>Husband's Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control temple-input" th:field="*{husbandName}"
+                                           th:classappend="${#fields.hasErrors('husbandName')} ? ' is-invalid'"
+                                           id="husbandName" placeholder="Enter husband's full name">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('husbandName')}" th:errors="*{husbandName}"></div>
+                                </div>
+
+                                <!-- Wife Name -->
+                                <div class="mb-4">
+                                    <label for="wifeName" class="form-label">
+                                        <i class="bi bi-person-fill me-1" style="color:#f778ba"></i>Wife's Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control temple-input" th:field="*{wifeName}"
+                                           th:classappend="${#fields.hasErrors('wifeName')} ? ' is-invalid'"
+                                           id="wifeName" placeholder="Enter wife's full name">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('wifeName')}" th:errors="*{wifeName}"></div>
+                                </div>
+
+                                <!-- Mobile Number - UPDATED for international -->
+                                <div class="mb-4">
+                                    <label for="mobileNumber" class="form-label">
+                                        <i class="bi bi-phone-fill text-success me-1"></i>Mobile Number <span class="text-danger">*</span>
+                                    </label>
+
+                                    <!-- Number Type Toggle -->
+                                    <div class="mb-2 d-flex gap-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="numberType"
+                                                   id="typeIndian" value="indian" checked onchange="toggleNumberType(this)">
+                                            <label class="form-check-label text-muted small" for="typeIndian">
+                                                🇮🇳 Indian Number
+                                            </label>
+                                        </div>
+                                        <div class="form-check ms-3">
+                                            <input class="form-check-input" type="radio" name="numberType"
+                                                   id="typeIntl" value="international" onchange="toggleNumberType(this)">
+                                            <label class="form-check-label text-muted small" for="typeIntl">
+                                                🌍 International Number
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Indian number input -->
+                                    <div id="indianInput">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-dark border-secondary text-muted">🇮🇳 +91</span>
+                                            <input type="tel" class="form-control temple-input"
+                                                   id="indianNumber"
+                                                   placeholder="10-digit mobile number (e.g. 9876543210)"
+                                                   maxlength="10"
+                                                   oninput="syncIndianNumber(this)">
+                                        </div>
+                                        <small class="text-muted">Enter 10-digit Indian number</small>
+                                    </div>
+
+                                    <!-- International number input -->
+                                    <div id="intlInput" style="display:none;">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-dark border-secondary text-muted">🌍</span>
+                                            <input type="tel" class="form-control temple-input"
+                                                   id="intlNumber"
+                                                   placeholder="With country code e.g. +14804103707"
+                                                   oninput="syncIntlNumber(this)">
+                                        </div>
+                                        <small class="text-muted">Include country code with + (e.g. <strong>+1</strong> for USA, <strong>+44</strong> for UK)</small>
+                                    </div>
+
+                                    <!-- Hidden actual field submitted to server -->
+                                    <input type="hidden" th:field="*{mobileNumber}" id="mobileNumber">
+                                    <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('mobileNumber')}"
+                                         th:errors="*{mobileNumber}"></div>
+
+                                    <!-- Preview of what will be saved -->
+                                    <div id="numberPreview" class="mt-2 p-2 rounded border border-secondary" style="display:none;background:rgba(0,0,0,0.2)">
+                                        <small class="text-muted">Will be saved as: </small>
+                                        <small id="previewText" class="text-success fw-semibold"></small>
+                                    </div>
+                                </div>
+
+                                <!-- Week Number -->
+                                <div class="mb-4">
+                                    <label for="weekNumber" class="form-label">
+                                        <i class="bi bi-calendar-week-fill text-info me-1"></i>Week Number <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" class="form-control temple-input" th:field="*{weekNumber}"
+                                           th:classappend="${#fields.hasErrors('weekNumber')} ? ' is-invalid'"
+                                           id="weekNumber" placeholder="Enter week number (1-52)" min="1" max="52">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('weekNumber')}" th:errors="*{weekNumber}"></div>
+                                    <small class="text-muted">Each week allows a maximum of 2 couples</small>
+                                </div>
+
+                                <div class="alert alert-info d-flex gap-2 align-items-start py-2 mb-4">
+                                    <i class="bi bi-info-circle-fill text-info mt-1"></i>
+                                    <small>The couple will be permanently assigned to the selected week every year.</small>
+                                </div>
+
+                                <div class="d-flex gap-3">
+                                    <button type="submit" class="btn btn-warning px-4 fw-semibold">
+                                        <i class="bi bi-check2-circle me-1"></i>
+                                        <span th:text="${formAction == 'add'} ? 'Register Couple' : 'Update Couple'"></span>
+                                    </button>
+                                    <a th:href="@{/couples}" class="btn btn-outline-secondary">Cancel</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guidelines -->
+                <div class="col-lg-4 col-xl-3">
+                    <div class="temple-card">
+                        <div class="temple-card-header"><h6 class="mb-0"><i class="bi bi-question-circle-fill text-info me-2"></i>Guidelines</h6></div>
+                        <div class="temple-card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-3 d-flex gap-2"><span class="text-warning">🇮🇳</span><small class="text-muted">Indian: Enter <strong>10-digit</strong> number (e.g. 9876543210)</small></li>
+                                <li class="mb-3 d-flex gap-2"><span class="text-warning">🌍</span><small class="text-muted">International: Include country code (e.g. <strong>+14804103707</strong> for USA)</small></li>
+                                <li class="mb-3 d-flex gap-2"><span class="text-warning">🔢</span><small class="text-muted">Week number must be between <strong>1</strong> and <strong>52</strong></small></li>
+                                <li class="mb-3 d-flex gap-2"><span class="text-warning">👫</span><small class="text-muted">Maximum <strong>2 couples</strong> per week</small></li>
+                                <li class="d-flex gap-2"><span class="text-warning">📱</span><small class="text-muted">Mobile number must be <strong>unique</strong> per couple</small></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Country Codes Reference -->
+                    <div class="temple-card mt-3">
+                        <div class="temple-card-header"><h6 class="mb-0"><i class="bi bi-globe text-warning me-2"></i>Country Codes</h6></div>
+                        <div class="temple-card-body">
+                            <table class="table table-sm mb-0" style="color:var(--temple-text-muted);font-size:0.8rem;">
+                                <tr><td>🇮🇳 India</td><td class="text-warning">+91</td></tr>
+                                <tr><td>🇺🇸 USA</td><td class="text-warning">+1</td></tr>
+                                <tr><td>🇬🇧 UK</td><td class="text-warning">+44</td></tr>
+                                <tr><td>🇦🇺 Australia</td><td class="text-warning">+61</td></tr>
+                                <tr><td>🇨🇦 Canada</td><td class="text-warning">+1</td></tr>
+                                <tr><td>🇸🇬 Singapore</td><td class="text-warning">+65</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/temple.js}"></script>
+<script th:inline="javascript">
+    // Pre-fill if editing existing couple
+    const existingNumber = /*[[${couple.mobileNumber}]]*/ '';
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (existingNumber) {
+            const digits = existingNumber.replace(/\D/g, '');
+            // Detect if Indian (10 digits starting 6-9) or international
+            if (digits.length === 10 && /^[6-9]/.test(digits)) {
+                document.getElementById('indianNumber').value = digits;
+                document.getElementById('typeIndian').checked = true;
+                showIndian();
+            } else {
+                // International
+                document.getElementById('intlNumber').value = existingNumber.startsWith('+') ? existingNumber : '+' + digits;
+                document.getElementById('typeIntl').checked = true;
+                showIntl();
+            }
+            updatePreview(existingNumber);
+        }
+    });
+
+    function toggleNumberType(radio) {
+        if (radio.value === 'indian') {
+            showIndian();
+        } else {
+            showIntl();
+        }
+        document.getElementById('mobileNumber').value = '';
+        document.getElementById('numberPreview').style.display = 'none';
+    }
+
+    function showIndian() {
+        document.getElementById('indianInput').style.display = 'block';
+        document.getElementById('intlInput').style.display = 'none';
+    }
+
+    function showIntl() {
+        document.getElementById('indianInput').style.display = 'none';
+        document.getElementById('intlInput').style.display = 'block';
+    }
+
+    function syncIndianNumber(input) {
+        // Only allow digits
+        input.value = input.value.replace(/\D/g, '').substring(0, 10);
+        const val = input.value;
+        document.getElementById('mobileNumber').value = val;
+        updatePreview(val);
+    }
+
+    function syncIntlNumber(input) {
+        // Allow +, digits, spaces, dashes
+        const val = input.value.trim();
+        // Strip everything except digits for storage
+        const digitsOnly = val.replace(/\D/g, '');
+        document.getElementById('mobileNumber').value = digitsOnly;
+        updatePreview(val);
+    }
+
+    function updatePreview(val) {
+        if (!val) {
+            document.getElementById('numberPreview').style.display = 'none';
+            return;
+        }
+        const digits = val.replace(/\D/g, '');
+        let display = '';
+        if (digits.length === 10 && /^[6-9]/.test(digits)) {
+            display = '+91 ' + digits + '  (WhatsApp: wa.me/91' + digits + ')';
+        } else if (digits.length > 0) {
+            display = '+' + digits + '  (WhatsApp: wa.me/' + digits + ')';
+        }
+        if (display) {
+            document.getElementById('previewText').textContent = display;
+            document.getElementById('numberPreview').style.display = 'block';
+        }
+    }
+</script>
+</body>
+</html>

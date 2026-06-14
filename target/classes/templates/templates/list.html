@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Templates | Hanuman Temple</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/temple.css}" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg temple-navbar fixed-top">
+    <div class="container-fluid px-3">
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/}">
+            <span class="temple-logo">🚩</span>
+            <div><div class="brand-title">Hanuman Temple</div><div class="brand-subtitle">Puja Reminder System</div></div>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+            <i class="bi bi-list text-white fs-4"></i>
+        </button>
+    </div>
+</nav>
+<div class="offcanvas offcanvas-start temple-sidebar-offcanvas" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header"><h5 class="offcanvas-title text-white">🚩 Navigation</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div>
+    <div class="offcanvas-body p-0"><div th:replace="~{fragments/sidebar :: sidebar-nav}"></div></div>
+</div>
+<div class="page-wrapper">
+    <aside class="sidebar d-none d-lg-flex flex-column"><div th:replace="~{fragments/sidebar :: sidebar-nav}"></div></aside>
+    <main class="main-content">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mx-3 mt-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div class="page-header">
+            <div class="container-fluid">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div>
+                        <h1 class="page-title"><i class="bi bi-file-text-fill me-2 text-warning"></i>Message Templates</h1>
+                        <p class="page-subtitle mb-0">Manage WhatsApp reminder message templates</p>
+                    </div>
+                    <a th:href="@{/templates/add}" class="btn btn-warning"><i class="bi bi-plus-circle-fill me-1"></i>Create Template</a>
+                </div>
+            </div>
+        </div>
+        <div class="content-body">
+            <div class="temple-card mb-4">
+                <div class="temple-card-header"><h6 class="mb-0"><i class="bi bi-code-slash text-info me-2"></i>Available Placeholders</h6></div>
+                <div class="temple-card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge badge-placeholder">{HUSBAND_NAME}</span>
+                        <span class="badge badge-placeholder">{WIFE_NAME}</span>
+                        <span class="badge badge-placeholder">{MOBILE_NUMBER}</span>
+                        <span class="badge badge-placeholder">{WEEK_NUMBER}</span>
+                        <span class="badge badge-placeholder">{PUJA_DATE}</span>
+                    </div>
+                    <small class="text-muted mt-2 d-block">These are automatically replaced when sending reminders.</small>
+                </div>
+            </div>
+
+            <div th:if="${templates.isEmpty()}" class="temple-card">
+                <div class="temple-card-body text-center py-5">
+                    <i class="bi bi-file-earmark-text text-warning fs-1"></i>
+                    <h4 class="mt-3">No Templates Found</h4>
+                    <p class="text-muted">Create your first reminder template.</p>
+                    <a th:href="@{/templates/add}" class="btn btn-warning"><i class="bi bi-plus-circle me-1"></i>Create Template</a>
+                </div>
+            </div>
+
+            <div class="row g-4" th:if="${!templates.isEmpty()}">
+                <div th:each="template, stat : ${templates}" class="col-lg-6">
+                    <div class="temple-card h-100">
+                        <div class="temple-card-header d-flex align-items-center justify-content-between">
+                            <div>
+                                <h5 class="mb-0" th:text="${template.templateName}"></h5>
+                                <small class="text-muted">Updated: <span th:text="${#temporals.format(template.updatedAt, 'dd MMM yyyy')}"></span></small>
+                            </div>
+                            <span th:if="${stat.first}" class="badge bg-success">Active</span>
+                        </div>
+                        <div class="temple-card-body">
+                            <div class="template-preview-box mb-4">
+                                <pre class="template-preview-text" th:text="${#strings.abbreviate(template.messageContent, 200)}"></pre>
+                            </div>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a th:href="@{/templates/preview/{id}(id=${template.id})}" class="btn btn-outline-info btn-sm"><i class="bi bi-eye-fill me-1"></i>Preview</a>
+                                <a th:href="@{/templates/edit/{id}(id=${template.id})}" class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil-fill me-1"></i>Edit</a>
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDeleteTemplate(this)"
+                                        th:data-id="${template.id}" th:data-name="${template.templateName}">
+                                    <i class="bi bi-trash-fill me-1"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div class="modal fade" id="deleteTemplateModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Delete Template</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body"><p>Delete <strong id="deleteTemplateName" class="text-warning"></strong>?</p></div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteTemplateForm" method="post">
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill me-1"></i>Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/temple.js}"></script>
+<script>
+function confirmDeleteTemplate(btn) {
+    document.getElementById('deleteTemplateName').textContent = btn.getAttribute('data-name');
+    document.getElementById('deleteTemplateForm').action = '/templates/delete/' + btn.getAttribute('data-id');
+    new bootstrap.Modal(document.getElementById('deleteTemplateModal')).show();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Reminders | Hanuman Temple</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/temple.css}" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg temple-navbar fixed-top">
+    <div class="container-fluid px-3">
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/}">
+            <span class="temple-logo">🚩</span>
+            <div><div class="brand-title">Hanuman Temple</div><div class="brand-subtitle">Puja Reminder System</div></div>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+            <i class="bi bi-list text-white fs-4"></i>
+        </button>
+    </div>
+</nav>
+<div class="offcanvas offcanvas-start temple-sidebar-offcanvas" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header"><h5 class="offcanvas-title text-white">🚩 Navigation</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div>
+    <div class="offcanvas-body p-0"><div th:replace="~{fragments/sidebar :: sidebar-nav}"></div></div>
+</div>
+<div class="page-wrapper">
+    <aside class="sidebar d-none d-lg-flex flex-column"><div th:replace="~{fragments/sidebar :: sidebar-nav}"></div></aside>
+    <main class="main-content">
+        <div class="page-header">
+            <div class="container-fluid">
+                <h1 class="page-title"><i class="bi bi-whatsapp me-2 text-success"></i>Send Reminders</h1>
+                <p class="page-subtitle mb-0">
+                    Upcoming Tuesday Puja —
+                    <strong class="text-warning" th:text="${formattedDate}">--</strong>
+                    (Week <span th:text="${dashboard.upcomingWeekNumber}">-</span>)
+                </p>
+            </div>
+        </div>
+        <div class="content-body">
+            <div th:if="${!hasActiveTemplate}" class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                <div>No reminder template found. <a th:href="@{/templates/add}" class="alert-link">Create a template</a> first.</div>
+            </div>
+
+            <div th:if="${dashboard.upcomingCouples != null and !dashboard.upcomingCouples.isEmpty()}">
+                <div class="row g-4">
+                    <div th:each="couple : ${dashboard.upcomingCouples}" class="col-md-6 col-xl-5">
+                        <div class="temple-card reminder-card">
+                            <div class="reminder-card-badge">🙏 Puja Week <span th:text="${couple.weekNumber}"></span></div>
+                            <div class="temple-card-body pt-4">
+                                <div class="text-center mb-4">
+                                    <div class="couple-profile-icon-sm mb-2"><i class="bi bi-people-fill"></i></div>
+                                    <h5 class="mb-0" th:text="${couple.husbandName}"></h5>
+                                    <p class="text-muted mb-0">&amp; <span th:text="${couple.wifeName}"></span></p>
+                                </div>
+                                <div class="reminder-details mb-4">
+                                    <div class="d-flex align-items-center justify-content-between py-2 border-bottom border-secondary">
+                                        <span class="text-muted"><i class="bi bi-phone-fill me-2"></i>Mobile</span>
+                                        <strong th:text="${couple.mobileNumber}"></strong>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between py-2 border-bottom border-secondary">
+                                        <span class="text-muted"><i class="bi bi-calendar-week me-2"></i>Week</span>
+                                        <span class="badge badge-week" th:text="'Week ' + ${couple.weekNumber}"></span>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between py-2">
+                                        <span class="text-muted"><i class="bi bi-calendar-event me-2"></i>Puja Date</span>
+                                        <strong class="text-warning" th:text="${formattedDate}"></strong>
+                                    </div>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/reminders/preview/{id}(id=${couple.id})}" class="btn btn-outline-info btn-sm">
+                                        <i class="bi bi-eye-fill me-1"></i>Preview Message
+                                    </a>
+                                    <button class="btn btn-whatsapp" th:disabled="${!hasActiveTemplate}"
+                                            th:onclick="'sendWhatsApp(' + ${couple.id} + ')'">
+                                        <i class="bi bi-whatsapp me-2"></i>Send WhatsApp Reminder
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${dashboard.upcomingCouples == null or dashboard.upcomingCouples.isEmpty()}" class="temple-card">
+                <div class="temple-card-body text-center py-5">
+                    <i class="bi bi-calendar-x text-warning fs-1"></i>
+                    <h4 class="mt-3">No Couples Assigned</h4>
+                    <p class="text-muted">No couples assigned to Week <strong th:text="${dashboard.upcomingWeekNumber}"></strong></p>
+                    <a th:href="@{/couples/add}" class="btn btn-warning mt-2"><i class="bi bi-plus-circle me-1"></i>Assign Couple</a>
+                </div>
+            </div>
+
+            <div class="temple-card mt-4">
+                <div class="temple-card-header"><h6 class="mb-0"><i class="bi bi-info-circle-fill text-info me-2"></i>How Reminders Work</h6></div>
+                <div class="temple-card-body">
+                    <div class="row g-3 text-center">
+                        <div class="col-6 col-md-3"><div class="step-icon">1</div><p class="small mt-2 mb-0">Click <strong>Send WhatsApp Reminder</strong></p></div>
+                        <div class="col-6 col-md-3"><div class="step-icon">2</div><p class="small mt-2 mb-0">WhatsApp opens with <strong>pre-filled message</strong></p></div>
+                        <div class="col-6 col-md-3"><div class="step-icon">3</div><p class="small mt-2 mb-0">Review the message content</p></div>
+                        <div class="col-6 col-md-3"><div class="step-icon">4</div><p class="small mt-2 mb-0">Press <strong>Send</strong> in WhatsApp</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/temple.js}"></script>
+<script>
+function sendWhatsApp(coupleId) {
+    fetch('/reminders/whatsapp/' + coupleId)
+        .then(r => r.text())
+        .then(url => window.open(url, '_blank'))
+        .catch(() => alert('Error generating WhatsApp link. Please try again.'));
+}
+</script>
+</body>
+</html>

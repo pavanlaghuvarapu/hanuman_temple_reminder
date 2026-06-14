@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} + ' | Hanuman Temple'">Template Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/temple.css}" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg temple-navbar fixed-top">
+    <div class="container-fluid px-3">
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/}">
+            <span class="temple-logo">🚩</span>
+            <div><div class="brand-title">Hanuman Temple</div><div class="brand-subtitle">Puja Reminder System</div></div>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+            <i class="bi bi-list text-white fs-4"></i>
+        </button>
+    </div>
+</nav>
+<div class="offcanvas offcanvas-start temple-sidebar-offcanvas" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header"><h5 class="offcanvas-title text-white">🚩 Navigation</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div>
+    <div class="offcanvas-body p-0"><div th:replace="~{fragments/sidebar :: sidebar-nav}"></div></div>
+</div>
+<div class="page-wrapper">
+    <aside class="sidebar d-none d-lg-flex flex-column"><div th:replace="~{fragments/sidebar :: sidebar-nav}"></div></aside>
+    <main class="main-content">
+        <div class="page-header">
+            <div class="container-fluid">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <h1 class="page-title"><i class="bi bi-file-text-fill me-2 text-warning"></i><span th:text="${pageTitle}"></span></h1>
+                    <a th:href="@{/templates}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+                </div>
+            </div>
+        </div>
+        <div class="content-body">
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="temple-card">
+                        <div class="temple-card-header">
+                            <h5 class="mb-0"><i class="bi bi-file-earmark-text text-warning me-2"></i>
+                                <span th:text="${formAction == 'add'} ? 'Create New Template' : 'Edit Template'"></span>
+                            </h5>
+                        </div>
+                        <div class="temple-card-body">
+                            <form th:action="${formAction == 'add'} ? @{/templates/add} : @{/templates/edit/{id}(id=${template.id})}"
+                                  th:object="${template}" method="post">
+                                <div class="mb-4">
+                                    <label for="templateName" class="form-label">Template Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control temple-input" th:field="*{templateName}"
+                                           th:classappend="${#fields.hasErrors('templateName')} ? ' is-invalid'"
+                                           id="templateName" placeholder="e.g., Default Puja Reminder">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('templateName')}" th:errors="*{templateName}"></div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="messageContent" class="form-label">Message Content <span class="text-danger">*</span></label>
+                                    <textarea class="form-control temple-input" th:field="*{messageContent}"
+                                              th:classappend="${#fields.hasErrors('messageContent')} ? ' is-invalid'"
+                                              id="messageContent" rows="14" placeholder="Enter your WhatsApp message..."></textarea>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('messageContent')}" th:errors="*{messageContent}"></div>
+                                </div>
+                                <div class="d-flex gap-3">
+                                    <button type="submit" class="btn btn-warning px-4">
+                                        <i class="bi bi-check2-circle me-1"></i>
+                                        <span th:text="${formAction == 'add'} ? 'Create Template' : 'Update Template'"></span>
+                                    </button>
+                                    <a th:href="@{/templates}" class="btn btn-outline-secondary">Cancel</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="temple-card">
+                        <div class="temple-card-header"><h6 class="mb-0"><i class="bi bi-code-slash text-info me-2"></i>Placeholder Reference</h6></div>
+                        <div class="temple-card-body">
+                            <p class="text-muted small mb-3">Click to insert at cursor:</p>
+                            <div class="d-flex flex-wrap gap-2 mb-4">
+                                <button type="button" class="btn btn-sm badge-placeholder-btn" onclick="insertPlaceholder('{HUSBAND_NAME}')">{HUSBAND_NAME}</button>
+                                <button type="button" class="btn btn-sm badge-placeholder-btn" onclick="insertPlaceholder('{WIFE_NAME}')">{WIFE_NAME}</button>
+                                <button type="button" class="btn btn-sm badge-placeholder-btn" onclick="insertPlaceholder('{MOBILE_NUMBER}')">{MOBILE_NUMBER}</button>
+                                <button type="button" class="btn btn-sm badge-placeholder-btn" onclick="insertPlaceholder('{WEEK_NUMBER}')">{WEEK_NUMBER}</button>
+                                <button type="button" class="btn btn-sm badge-placeholder-btn" onclick="insertPlaceholder('{PUJA_DATE}')">{PUJA_DATE}</button>
+                            </div>
+                            <div class="template-preview-box">
+                                <pre class="template-preview-text small">Jai Shri Ram! 🙏
+
+Dear Ramesh ji and Sunita ji,
+
+Puja Date: 15 January 2025
+Week Number: 5
+
+Jai Bajrang Bali! 🚩</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/temple.js}"></script>
+<script>
+function insertPlaceholder(p) {
+    var t = document.getElementById('messageContent');
+    var s = t.selectionStart, e = t.selectionEnd;
+    t.value = t.value.substring(0,s) + p + t.value.substring(e);
+    t.selectionStart = t.selectionEnd = s + p.length;
+    t.focus();
+}
+</script>
+</body>
+</html>
